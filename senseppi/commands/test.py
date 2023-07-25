@@ -37,7 +37,7 @@ def test(params):
 def add_args(parser):
     parser = add_general_args(parser)
 
-    predict_args = parser.add_argument_group(title="Predict args")
+    test_args = parser.add_argument_group(title="Predict args")
     parser._action_groups[0].add_argument("model_path", type=str,
                                           help="A path to .ckpt file that contains weights to a pretrained model.")
     parser._action_groups[0].add_argument("pairs_file", type=str, default=None,
@@ -47,10 +47,10 @@ def add_args(parser):
                                           help="FASTA file on which to extract the ESM2 "
                                                "representations and then evaluate.",
                                           )
-    predict_args.add_argument("-o", "--output", type=str, default="test_metrics",
+    test_args.add_argument("-o", "--output", type=str, default="test_metrics",
                               help="A path to a file where the test metrics will be saved. "
                                    "(.tsv format will be added automatically)")
-    predict_args.add_argument("--crop_data_to_model_lims", action="store_true",
+    test_args.add_argument("--crop_data_to_model_lims", action="store_true",
                               help="If set, the data will be cropped to the limits of the model: "
                                    "evaluations will be done only for proteins >50aa and <800aa.")
 

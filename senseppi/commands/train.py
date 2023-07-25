@@ -1,6 +1,7 @@
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 import pathlib
+import argparse
 from ..utils import add_general_args
 from ..model import SensePPIModel
 from ..dataset import PairSequenceData

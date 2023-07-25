@@ -13,45 +13,44 @@ import gzip
 import shutil
 
 
-def generate_pairs(fasta_file, mode='all_to_all', with_self=False, delete_proteins=None):
+def generate_pairs_string(fasta_file, output_file, with_self=False, delete_proteins=None):
     ids = []
     for record in SeqIO.parse(fasta_file, "fasta"):
         ids.append(record.id)
 
-    if mode == 'all_to_all':
-        if with_self:
-            all_pairs = [p for p in product(ids, repeat=2)]
-        else:
-            all_pairs = [p for p in permutations(ids, 2)]
+    if with_self:
+        all_pairs = [p for p in product(ids, repeat=2)]
+    else:
+        all_pairs = [p for p in permutations(ids, 2)]
 
-        pairs = []
-        for p in all_pairs:
-            if (p[1], p[0]) not in pairs and (p[0], p[1]) not in pairs:
-                pairs.append(p)
+    pairs = []
+    for p in all_pairs:
+        if (p[1], p[0]) not in pairs and (p[0], p[1]) not in pairs:
+            pairs.append(p)
 
-        pairs = pd.DataFrame(pairs, columns=['seq1', 'seq2'])
+    pairs = pd.DataFrame(pairs, columns=['seq1', 'seq2'])
 
-        data = pd.read_csv('string_interactions.tsv', delimiter='\t')
+    data = pd.read_csv('string_interactions.tsv', delimiter='\t')
 
-        # Creating a dictionary of string ids and gene names
-        ids_dict = dict(zip(data['preferredName_A'], data['stringId_A']))
-        ids_dict.update(dict(zip(data['preferredName_B'], data['stringId_B'])))
+    # Creating a dictionary of string ids and gene names
+    ids_dict = dict(zip(data['preferredName_A'], data['stringId_A']))
+    ids_dict.update(dict(zip(data['preferredName_B'], data['stringId_B'])))
 
-        data = data[['stringId_A', 'stringId_B', 'score']]
-        data.columns = ['seq1', 'seq2', 'label']
+    data = data[['stringId_A', 'stringId_B', 'score']]
+    data.columns = ['seq1', 'seq2', 'label']
 
-        pairs = pairs.merge(data, on=['seq1', 'seq2'], how='left').fillna(0)
+    pairs = pairs.merge(data, on=['seq1', 'seq2'], how='left').fillna(0)
 
-        if delete_proteins is not None:
-            print('Labels removed: ', delete_proteins)
-            string_ids_to_delete = []
-            for label in delete_proteins:
-                string_ids_to_delete.append(ids_dict[label])
-            print('String ids to delete: ', string_ids_to_delete)
-            pairs = pairs[~pairs['seq1'].isin(string_ids_to_delete)]
-            pairs = pairs[~pairs['seq2'].isin(string_ids_to_delete)]
+    if delete_proteins is not None:
+        print('Labels removed: ', delete_proteins)
+        string_ids_to_delete = []
+        for label in delete_proteins:
+            string_ids_to_delete.append(ids_dict[label])
+        print('String ids to delete: ', string_ids_to_delete)
+        pairs = pairs[~pairs['seq1'].isin(string_ids_to_delete)]
+        pairs = pairs[~pairs['seq2'].isin(string_ids_to_delete)]
 
-        pairs.to_csv('protein.actions.tsv', sep='\t', index=False, header=False)
+    pairs.to_csv(output_file, sep='\t', index=False, header=False)
 
 
 def generate_dscript_gene_names(file_path,
