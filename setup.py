@@ -21,6 +21,8 @@ setup(
         "numpy",
         "pandas",
         "wget",
+        "scipy",
+        "networkx",
         "torch>=1.12",
         "matplotlib",
         "seaborn",

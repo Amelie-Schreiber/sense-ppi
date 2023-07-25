@@ -1,5 +1,3 @@
-import os
-
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 from torchmetrics import AUROC, Accuracy, Precision, Recall, F1Score, MatthewsCorrCoef
@@ -9,7 +7,7 @@ import matplotlib
 from matplotlib.lines import Line2D
 from scipy.cluster.hierarchy import linkage, fcluster
 from matplotlib.patches import Rectangle
-
+import argparse
 import matplotlib.pyplot as plt
 import glob
 
@@ -225,12 +223,12 @@ def main(params):
                 node_color=[G.nodes[node]['color'] for node in G.nodes()])
 
         legend_elements = [
-            Line2D([0], [0], marker='_', color='darkblue', label='PP from training data', markerfacecolor='darkblue',
-                   markersize=10),
+            # Line2D([0], [0], marker='_', color='darkblue', label='PP from training data', markerfacecolor='darkblue',
+            #        markersize=10),
             Line2D([0], [0], marker='_', color='limegreen', label='PP', markerfacecolor='limegreen', markersize=10),
-            Line2D([0], [0], marker='_', color='red', label='FP', markerfacecolor='red', markersize=10)]
-            # Line2D([0], [0], marker='_', color='black', label='FN - based on STRING', markerfacecolor='black',
-            #        markersize=10, linestyle='dotted')]
+            Line2D([0], [0], marker='_', color='red', label='FP', markerfacecolor='red', markersize=10),
+            Line2D([0], [0], marker='_', color='black', label='FN - based on STRING', markerfacecolor='black',
+                   markersize=10, linestyle='dotted')]
         plt.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.2, 0.0), ncol=1, fontsize=8)
 
         savepath = '{}_graph_{}_{}.pdf'.format(params.output, '_'.join(params.genes), params.species)
@@ -276,6 +274,7 @@ def add_args(parser):
 
     add_esm_args(parser)
     return parser
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
