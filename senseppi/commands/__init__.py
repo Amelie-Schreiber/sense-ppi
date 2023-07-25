@@ -1,1 +1,1 @@
-__all__ = ['predict', 'train']
+__all__ = ['predict', 'train', 'string_dataset_create', 'test', 'predict_string']

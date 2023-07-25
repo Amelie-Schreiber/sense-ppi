@@ -13,19 +13,23 @@ setup(
     url="",
     license="MIT",
     packages=find_packages(),
+
     long_description=long_description,
     long_description_content_type="text/markdown",
     include_package_data=True,
     install_requires=[
         "numpy",
         "pandas",
+        "wget",
         "torch>=1.12",
         "matplotlib",
+        "seaborn",
         "tqdm",
         "scikit-learn",
         "pytorch-lightning==1.9.0",
         "torchmetrics",
         "biopython",
-        "fair-esm"
+        "fair-esm",
+        "mmseqs2"
     ],
 )

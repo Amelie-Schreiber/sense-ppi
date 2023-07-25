@@ -4,6 +4,8 @@ from itertools import permutations, product
 import numpy as np
 import pandas as pd
 import logging
+import pathlib
+import argparse
 from ..dataset import PairSequenceData
 from ..model import SensePPIModel
 from ..utils import *
@@ -65,7 +67,10 @@ def add_args(parser):
 
     predict_args = parser.add_argument_group(title="Predict args")
     parser._action_groups[0].add_argument("model_path", type=str,
-                              help="A path to .ckpt file that contains weights to a pretrained model.")
+                                          help="A path to .ckpt file that contains weights to a pretrained model.")
+    parser._action_groups[0].add_argument("fasta_file", type=pathlib.Path,
+                                          help="FASTA file on which to extract the ESM2 representations and then test.",
+                                          )
     predict_args.add_argument("--pairs_file", type=str, default=None,
                               help="A path to a .tsv file with pairs of proteins to test (Optional). If not provided, "
                                    "all-to-all pairs will be generated.")
@@ -88,8 +93,6 @@ def add_args(parser):
 
 
 def main(params):
-    logging.info("Device used: ", params.device)
-
     process_string_fasta(params.fasta_file, min_len=params.min_len, max_len=params.max_len)
     if params.pairs_file is None:
         generate_pairs(params.fasta_file, 'protein.pairs.tsv', with_self=params.with_self)

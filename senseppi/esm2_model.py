@@ -104,7 +104,7 @@ def compute_embeddings(params):
     # Compute ESM embeddings
 
     logging.info('Computing ESM embeddings if they are not already computed. '
-                 'If all the files alreaady exist in output_dir_esm, this step will be skipped.')
+                 'If all the files alreaady exist in {} folder, this step will be skipped.'.format(params.output_dir_esm))
 
     if not os.path.exists(params.output_dir_esm):
         run(params)

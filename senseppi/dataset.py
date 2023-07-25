@@ -26,7 +26,7 @@ class PairSequenceData(Dataset):
             dtypes.update({'label': np.float16})
             self.actions = pd.read_csv(self.action_path, delimiter='\t', names=["seq1", "seq2", "label"], dtype=dtypes)
         else:
-            self.actions = pd.read_csv(self.action_path, delimiter='\t', names=["seq1", "seq2"], dtype=dtypes)
+            self.actions = pd.read_csv(self.action_path, delimiter='\t', usecols=[0, 1], names=["seq1", "seq2"], dtype=dtypes)
 
     def get_emb(self, emb_id):
         f = os.path.join(self.emb_dir, '{}.pt'.format(emb_id))

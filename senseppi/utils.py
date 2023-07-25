@@ -1,18 +1,11 @@
 from Bio import SeqIO
 import os
-import argparse
 from senseppi import __version__
-import pathlib
 import torch
 
 
 def add_general_args(parser):
     parser.add_argument("-v", "--version", action="version", version="SENSE_PPI v{}".format(__version__))
-    parser.add_argument(
-        "fasta_file",
-        type=pathlib.Path,
-        help="FASTA file on which to extract the ESM2 representations and then train or test.",
-    )
     parser.add_argument("--min_len", type=int, default=50,
                         help="Minimum length of the protein sequence. "
                              "The sequences with smaller length will not be considered.")
@@ -48,6 +41,13 @@ def process_string_fasta(fasta_file, min_len, max_len):
     # Rename the temporary file to the original file
     os.remove(fasta_file)
     os.rename('file.tmp', fasta_file)
+
+
+def get_fasta_ids(fasta_file):
+    ids = []
+    for record in SeqIO.parse(fasta_file, "fasta"):
+        ids.append(record.id)
+    return ids
 
 
 def remove_argument(parser, arg):

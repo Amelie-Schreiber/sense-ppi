@@ -1,8 +1,9 @@
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import TQDMProgressBar, ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint
+import pathlib
+from ..utils import add_general_args
 from ..model import SensePPIModel
 from ..dataset import PairSequenceData
-from ..utils import *
 from ..esm2_model import add_esm_args, compute_embeddings
 
 
@@ -45,6 +46,9 @@ def add_args(parser):
                                                "Required format: 3 tab separated columns: first protein, "
                                                "second protein (protein names have to be present in fasta_file), "
                                                "label (0 or 1).")
+    parser._action_groups[0].add_argument("fasta_file", type=pathlib.Path,
+                                          help="FASTA file on which to extract the ESM2 representations and then train.",
+                                          )
     train_args.add_argument("--valid_size", type=float, default=0.1,
                             help="Fraction of the training data to use for validation.")
     train_args.add_argument("--seed", type=int, default=None, help="Global training seed.")
