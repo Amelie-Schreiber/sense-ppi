@@ -10,7 +10,7 @@ class PairSequenceData(Dataset):
     def __init__(self,
                  actions_file,
                  emb_dir,
-                 max_len=800,
+                 max_len,
                  pad_inputs=True,
                  labels=True):
 
@@ -34,9 +34,8 @@ class PairSequenceData(Dataset):
         try:
             emb = torch.load(f)
         except FileNotFoundError as _:
-            raise Exception(
-                'Embedding file {} not found. Check your fasta file and make sure it contains all the sequences used in training/testing.'.format(
-                    f))
+            raise Exception('Embedding file {} not found. Check your fasta file and make sure it contains '
+                            'all the sequences used in training/testing.'.format(f))
 
         tensor_emb = emb['representations'][36]  # [33]
         tensor_len = tensor_emb.size(0)

@@ -47,7 +47,6 @@ class DynamicLSTM(pl.LightningModule):
 
     def forward(self, x, seq_lens):
         # sort input by descending length
-
         _, idx_sort = torch.sort(seq_lens, dim=0, descending=True)
         _, idx_unsort = torch.sort(idx_sort, dim=0)
         x_sort = torch.index_select(x, dim=0, index=idx_sort)
@@ -163,12 +162,12 @@ class BaselineModel(pl.LightningModule):
         self.valid_metrics.reset()
         self.log_dict(result, on_epoch=True, sync_dist=self.hparams.sync_dist)
 
-    def load_data(self, dataset, valid_size=0.2, indices=None):
+    def load_data(self, dataset, valid_size=0.1, indices=None):
         if indices is None:
             dataset_length = len(dataset)
             valid_length = int(valid_size * dataset_length)
             train_length = dataset_length - valid_length
-            self.train_set, self.val_set = data.random_split(dataset, [train_length, valid_length])  # , test_size])
+            self.train_set, self.val_set = data.random_split(dataset, [train_length, valid_length])
             print('Data has been randomly divided into train/val sets with sizes {} and {}'.format(len(self.train_set),
                                                                                                    len(self.val_set)))
         else:
@@ -216,7 +215,7 @@ class SensePPIModel(BaselineModel):
     def __init__(self, params):
         super(SensePPIModel, self).__init__(params)
 
-        self.encoder_features = self.hparams.encoder_features  # 2560
+        self.encoder_features = self.hparams.encoder_features
         self.hidden_dim = 256
 
         self.lstm = DynamicLSTM(self.encoder_features, hidden_size=128, num_layers=3, dropout=0.5, bidirectional=True)

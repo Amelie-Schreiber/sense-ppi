@@ -15,10 +15,10 @@ def add_general_args(parser):
     )
     parser.add_argument("--min_len", type=int, default=50,
                         help="Minimum length of the protein sequence. "
-                             "The sequences with smaller length will not be considered. Default: 50")
+                             "The sequences with smaller length will not be considered.")
     parser.add_argument("--max_len", type=int, default=800,
                         help="Maximum length of the protein sequence. "
-                             "The sequences with larger length will not be considered. Default: 800")
+                             "The sequences with larger length will not be considered.")
     parser.add_argument("--device", type=str, default=determine_device(), choices=['cpu', 'gpu', 'mps'],
                         help="Device to used for computations. Options include: cpu, gpu, mps (for MacOS)."
                              "If not selected the device is set by torch automatically.")

@@ -23,7 +23,7 @@ setup(
         "matplotlib",
         "tqdm",
         "scikit-learn",
-        "pytorch-lightning",
+        "pytorch-lightning==1.9.0",
         "torchmetrics",
         "biopython",
         "fair-esm"

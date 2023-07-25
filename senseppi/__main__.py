@@ -1,4 +1,5 @@
 import argparse
+import logging
 from .commands import *
 from senseppi import __version__
 
@@ -22,6 +23,13 @@ def main():
         sp.set_defaults(func=module.main)
 
     params = parser.parse_args()
+
+    #WARNING: due to some internal issues of torch, the mps backend is temporarily disabled
+    if params.device == 'mps':
+        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
+                        'The cpu backend will be used instead.')
+        params.device = 'cpu'
+
     params.func(params)
 
 

@@ -2,3 +2,4 @@
 /pretrained_models
 *.tsv
 *.fasta
+*.sh
