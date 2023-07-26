@@ -202,8 +202,9 @@ class BaselineModel(pl.LightningModule):
     @staticmethod
     def add_model_specific_args(parent_parser):
         parser = parent_parser.add_argument_group("Args_model")
-        parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate for training.")
-        parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training/testing.")
+        parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate for training. "
+                                                                   "Cosine warmup will be applied.")
+        parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training/testing.")
         parser.add_argument("--encoder_features", type=int, default=2560,
                             help="Number of features in the encoder "
                                  "(Corresponds to the dimentionality of per-token embedding of ESM2 model.) "

@@ -5,11 +5,12 @@ from Bio import SeqIO
 import logging
 import argparse
 import subprocess
+from urllib.error import HTTPError
 import wget
 import gzip
 import shutil
 import random
-from ..network_utils import get_string_url
+from ..network_utils import get_string_url, DOWNLOAD_LINK_STRING
 
 
 def _count_generator(reader):
@@ -284,21 +285,29 @@ def main(params):
     if params.interactions is None or params.sequences is None:
         logging.info('One or both of the files are not specified (interactions or sequences). '
                      'Downloading from STRING...')
+
     _, version = get_string_url()
+    logging.info('STRING version: {}'.format(version))
 
-    url = "https://stringdb-static.org/download/protein.physical.links.full.v{0}/{1}.protein.physical.links.full.v{0}.txt.gz".format(version, params.species)
-    string_file_name_links = "{1}.protein.physical.links.full.v{0}.txt".format(version, params.species)
-    wget.download(url, out=string_file_name_links+'.gz')
-    with gzip.open(string_file_name_links+'.gz', 'rb') as f_in:
-        with open(string_file_name_links, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
+    try:
+        url = "{0}protein.physical.links.full.v{1}/{2}.protein.physical.links.full.v{1}.txt.gz".format(DOWNLOAD_LINK_STRING, version, params.species)
+        string_file_name_links = "{1}.protein.physical.links.full.v{0}.txt".format(version, params.species)
+        wget.download(url, out=string_file_name_links+'.gz')
+        with gzip.open(string_file_name_links+'.gz', 'rb') as f_in:
+            with open(string_file_name_links, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
 
-    url = "https://stringdb-static.org/download/protein.sequences.v{0}/{1}.protein.sequences.v{0}.fa.gz".format(version, params.species)
-    string_file_name_seqs = "{1}.protein.sequences.v{0}.fa".format(version, params.species)
-    wget.download(url, out=string_file_name_seqs+'.gz')
-    with gzip.open(string_file_name_seqs+'.gz', 'rb') as f_in:
-        with open(string_file_name_seqs, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
+        url = "{0}protein.sequences.v{1}/{2}.protein.sequences.v{1}.fa.gz".format(DOWNLOAD_LINK_STRING, version, params.species)
+        string_file_name_seqs = "{1}.protein.sequences.v{0}.fa".format(version, params.species)
+        wget.download(url, out=string_file_name_seqs+'.gz')
+        with gzip.open(string_file_name_seqs+'.gz', 'rb') as f_in:
+            with open(string_file_name_seqs, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+    except HTTPError:
+        raise Exception('The files are not available for the specified species. '
+                     'There might be two reasons for that: \n '
+                     '1) the species is not available in STRING. Please check the STRING species list to verify. \n'
+                     '2) the download link has changed. Please raise an issue in the repository. ')
 
     os.remove(string_file_name_seqs+'.gz')
     os.remove(string_file_name_links+'.gz')

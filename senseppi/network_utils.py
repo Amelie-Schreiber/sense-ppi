@@ -12,6 +12,7 @@ import requests
 import gzip
 import shutil
 
+DOWNLOAD_LINK_STRING = "https://stringdb-downloads.org/download/"
 
 def generate_pairs_string(fasta_file, output_file, with_self=False, delete_proteins=None):
     ids = []
@@ -53,46 +54,6 @@ def generate_pairs_string(fasta_file, output_file, with_self=False, delete_prote
     pairs.to_csv(output_file, sep='\t', index=False, header=False)
 
 
-def generate_dscript_gene_names(file_path,
-                                only_positives=True,
-                                species='9606'):
-    data = pd.read_csv(file_path, delimiter='\t', names=['seq1', 'seq2', 'label'])
-
-    if only_positives:
-        train_ids = set(data['seq1'][data['label'] == 1].values).union(set(data['seq2'][data['label'] == 1].values))
-    else:
-        train_ids = set(data['seq1'].values).union(set(data['seq2'].values))
-    # train_ids = [train_id.split('.')[1] for train_id in train_ids]
-    train_ids = [train_id for train_id in train_ids if train_id.startswith(species)]
-
-    if len(train_ids) == 0:
-        return None
-    # Write a request to STRING API to get the gene names for the ids in train_ids
-    # Split the request into chunks of 100 ids and make a pause of 1 second between each chunk
-    chunk_size = 300
-    genes_string = pd.DataFrame()
-    for i in tqdm(range(0, len(train_ids), chunk_size)):
-        chunk = deepcopy(train_ids[i:i + chunk_size])
-        url = 'https://string-db.org/api/tsv/get_string_ids?identifiers=%s&species={}'.format(species) % '%0d'.join(
-            [c.split('.')[-1] for c in chunk])
-        response = urllib.request.urlopen(url)
-        data = response.read()
-        text = data.decode('utf-8')
-        text = text.split('\n')
-        # text = [t for t in text if t]
-        text = [t.split('\t') for t in text]
-        df = pd.DataFrame(text,
-                          columns=['queryIndex', 'stringId', 'ncbiTaxonId', 'taxonName', 'preferredName', 'annotation'])
-        # Remove line if queryIndex is not int
-        df = df[df['queryIndex'].apply(lambda x: x.isdigit())]
-        df['QueryString'] = df['queryIndex'].apply(lambda x: chunk[int(x)])
-        # add stringId and preferredName to genes_string
-        genes_string = pd.concat([genes_string, df[['QueryString', 'preferredName']]])
-        # time.sleep(0.2)
-
-    return genes_string
-
-
 def get_names_from_string(ids, species):
     string_api_url, _ = get_string_url()
     params = {
@@ -124,8 +85,7 @@ def get_interactions_from_string(gene_names, species=9606, add_nodes=10, require
     # Download protein sequences for given species if not downloaded yet
     if not os.path.isfile('{}.protein.sequences.v{}.fa'.format(species, version)):
         print('Downloading protein sequences')
-        url = 'https://stringdb-static.org/download/protein.sequences.v{}/{}.protein.sequences.v{}.fa.gz'.format(
-            version, species, version)
+        url = '{0}protein.sequences.v{1}/{2}.protein.sequences.v{1}.fa.gz'.format(DOWNLOAD_LINK_STRING, version, species)
         urllib.request.urlretrieve(url, '{}.protein.sequences.v{}.fa.gz'.format(species, version))
         print('Unzipping protein sequences')
         with gzip.open('{}.protein.sequences.v{}.fa.gz'.format(species, version), 'rb') as f_in:
@@ -185,9 +145,5 @@ def get_interactions_from_string(gene_names, species=9606, add_nodes=10, require
                 SeqIO.write(record, f, "fasta")
     string_interactions.to_csv('string_interactions.tsv', sep='\t', index=False)
 
-
 if __name__ == '__main__':
-    print(generate_dscript_gene_names(
-        file_path=os.path.join('..', 'STRING_full', 'preprocessed', 'protein.actions_full.tsv'),
-        only_positives=True,
-        species='362663'))
+    get_interactions_from_string('RFC5')
