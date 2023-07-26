@@ -42,6 +42,7 @@ class PairSequenceData(Dataset):
         if self.pad_inputs:
             if tensor_emb.shape[0] > self.max_len:
                 tensor_emb = tensor_emb[:self.max_len]
+                tensor_len = self.max_len
             if tensor_emb.shape[0] < self.max_len:
                 tensor_emb = F.pad(tensor_emb, (0, 0, 0, self.max_len - tensor_emb.size(0)), "constant", 0)
 
