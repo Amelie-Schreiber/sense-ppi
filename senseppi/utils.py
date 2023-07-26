@@ -21,7 +21,7 @@ def add_general_args(parser):
 
 def determine_device():
     if torch.cuda.is_available():
-        device = 'cuda'
+        device = 'gpu'
     elif torch.backends.mps.is_available() and torch.backends.mps.is_built():
         device = 'mps'
     else:

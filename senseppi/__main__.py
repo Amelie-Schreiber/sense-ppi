@@ -1,6 +1,6 @@
 import argparse
 import logging
-
+import torch
 from .commands import *
 from senseppi import __version__
 
@@ -32,11 +32,15 @@ def main():
 
     params = parser.parse_args()
 
-    #WARNING: due to some internal issues of torch, the mps backend is temporarily disabled
-    if hasattr(params, 'device') and params.device == 'mps':
-        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
-                        'The cpu backend will be used instead.')
-        params.device = 'cpu'
+    if hasattr(params, 'device'):
+        # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
+        if params.device == 'mps':
+            logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
+                            'The cpu backend will be used instead.')
+            params.device = 'cpu'
+
+        if params.device == 'gpu':
+            torch.set_float32_matmul_precision('high')
 
     params.func(params)
 
