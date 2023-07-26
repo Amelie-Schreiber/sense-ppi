@@ -62,7 +62,6 @@ def main(params):
     data['preds'] = preds
 
     print(data.sort_values(by=['preds'], ascending=False).to_string())
-    data.to_csv(params.output + '.tsv', sep='\t', index=False)
 
     # Calculate torch metrics based on data['binary_label'] and data['preds']
     torch_labels = torch.tensor(data['binary_label'])
@@ -81,6 +80,12 @@ def main(params):
     for i, row in string_tsv.iterrows():
         string_ids[row['stringId_A']] = row['preferredName_A']
         string_ids[row['stringId_B']] = row['preferredName_B']
+
+    data_to_save = data.copy()
+    data_to_save['seq1'] = data_to_save['seq1'].apply(lambda x: string_ids[x])
+    data_to_save['seq2'] = data_to_save['seq2'].apply(lambda x: string_ids[x])
+    data_to_save = data_to_save.sort_values(by=['preds'], ascending=False)
+    data_to_save.to_csv(params.output + '.tsv', sep='\t', index=False)
 
     # This part was needed to color the pairs belonging to the train data, temporarily removed
 
