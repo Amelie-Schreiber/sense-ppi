@@ -17,7 +17,7 @@ from ..utils import *
 from ..network_utils import *
 from ..esm2_model import add_esm_args, compute_embeddings
 from ..dataset import PairSequenceData
-from predict import predict
+from .predict import predict
 
 
 def main(params):
