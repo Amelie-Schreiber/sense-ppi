@@ -47,7 +47,7 @@ def run(args):
     model, alphabet = pretrained.load_model_and_alphabet(args.model_location_esm)
     model.eval()
 
-    if args.device == 'cuda':
+    if args.device == 'gpu':
         model = model.cuda()
         print("Transferred the ESM2 model to GPU")
     elif args.device == 'mps':
@@ -71,7 +71,7 @@ def run(args):
             print(
                 f"Processing {batch_idx + 1} of {len(batches)} batches ({toks.size(0)} sequences)"
             )
-            if args.device == 'cuda':
+            if args.device == 'gpu':
                 toks = toks.to(device="cuda", non_blocking=True)
             elif args.device == 'mps':
                 toks = toks.to(device="mps", non_blocking=True)

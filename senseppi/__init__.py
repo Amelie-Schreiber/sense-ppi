@@ -1,4 +1,4 @@
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 __author__ = "Konstantin Volzhenin"
 
 from . import model, commands, esm2_model, dataset, utils, network_utils

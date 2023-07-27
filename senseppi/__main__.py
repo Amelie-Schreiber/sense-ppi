@@ -42,6 +42,8 @@ def main():
         if params.device == 'gpu':
             torch.set_float32_matmul_precision('high')
 
+        logging.info('Device used: {}'.format(params.device))
+
     params.func(params)
 
 

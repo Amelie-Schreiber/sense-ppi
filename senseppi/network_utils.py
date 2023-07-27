@@ -14,6 +14,7 @@ import shutil
 
 DOWNLOAD_LINK_STRING = "https://stringdb-downloads.org/download/"
 
+
 def generate_pairs_string(fasta_file, output_file, with_self=False, delete_proteins=None):
     ids = []
     for record in SeqIO.parse(fasta_file, "fasta"):
@@ -85,7 +86,8 @@ def get_interactions_from_string(gene_names, species=9606, add_nodes=10, require
     # Download protein sequences for given species if not downloaded yet
     if not os.path.isfile('{}.protein.sequences.v{}.fa'.format(species, version)):
         print('Downloading protein sequences')
-        url = '{0}protein.sequences.v{1}/{2}.protein.sequences.v{1}.fa.gz'.format(DOWNLOAD_LINK_STRING, version, species)
+        url = '{0}protein.sequences.v{1}/{2}.protein.sequences.v{1}.fa.gz'.format(DOWNLOAD_LINK_STRING, version,
+                                                                                  species)
         urllib.request.urlretrieve(url, '{}.protein.sequences.v{}.fa.gz'.format(species, version))
         print('Unzipping protein sequences')
         with gzip.open('{}.protein.sequences.v{}.fa.gz'.format(species, version), 'rb') as f_in:
@@ -144,6 +146,7 @@ def get_interactions_from_string(gene_names, species=9606, add_nodes=10, require
             if record.id in ids:
                 SeqIO.write(record, f, "fasta")
     string_interactions.to_csv('string_interactions.tsv', sep='\t', index=False)
+
 
 if __name__ == '__main__':
     get_interactions_from_string('RFC5')
