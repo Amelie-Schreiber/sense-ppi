@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 import pathlib
 import argparse
+import logging
 from ..utils import add_general_args
 from ..model import SensePPIModel
 from ..dataset import PairSequenceData
@@ -13,6 +14,12 @@ def main(params):
         pl.seed_everything(params.seed, workers=True)
 
     compute_embeddings(params)
+
+    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
+    if params.device == 'mps':
+        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
+                        'The cpu backend will be used instead.')
+        params.device = 'cpu'
 
     dataset = PairSequenceData(emb_dir=params.output_dir_esm, actions_file=params.pairs_file,
                                max_len=params.max_len, labels=True)

@@ -36,10 +36,7 @@ def predict(params):
     preds = [pred for batch in trainer.predict(pretrained_model, test_loader) for pred in batch.squeeze().tolist()]
     preds = np.asarray(preds)
 
-    data = pd.read_csv(params.pairs_file, delimiter='\t', names=["seq1", "seq2"])
-    data['preds'] = preds
-
-    return data
+    return preds
 
 
 def generate_pairs(fasta_file, output_path, with_self=False):
@@ -100,8 +97,17 @@ def main(params):
 
     compute_embeddings(params)
 
+    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
+    if params.device == 'mps':
+        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
+                        'The cpu backend will be used instead.')
+        params.device = 'cpu'
+
     logging.info('Predicting...')
-    data = predict(params)
+    preds = predict(params)
+
+    data = pd.read_csv(params.pairs_file, delimiter='\t', names=["seq1", "seq2"])
+    data['preds'] = preds
 
     data.to_csv(params.output + '.tsv', sep='\t', index=False, header=False)
 

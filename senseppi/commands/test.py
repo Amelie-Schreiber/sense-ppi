@@ -72,6 +72,12 @@ def main(params):
 
     compute_embeddings(params)
 
+    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
+    if params.device == 'mps':
+        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
+                        'The cpu backend will be used instead.')
+        params.device = 'cpu'
+
     logging.info('Evaluating...')
     test_metrics = test(params)[0]
 

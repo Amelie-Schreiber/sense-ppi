@@ -10,12 +10,14 @@ from matplotlib.patches import Rectangle
 import argparse
 import matplotlib.pyplot as plt
 import glob
+import logging
 
 from ..model import SensePPIModel
 from ..utils import *
 from ..network_utils import *
 from ..esm2_model import add_esm_args, compute_embeddings
 from ..dataset import PairSequenceData
+from predict import predict
 
 
 def main(params):
@@ -33,28 +35,13 @@ def main(params):
     params.fasta_file = fasta_file
     compute_embeddings(params)
 
-    test_data = PairSequenceData(emb_dir=params.output_dir_esm, actions_file=pairs_file,
-                                 max_len=params.max_len, labels=False)
+    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
+    if params.device == 'mps':
+        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
+                        'The cpu backend will be used instead.')
+        params.device = 'cpu'
 
-    pretrained_model = SensePPIModel(params)
-
-    if params.device == 'gpu':
-        checkpoint = torch.load(params.model_path)
-    elif params.device == 'mps':
-        checkpoint = torch.load(params.model_path, map_location=torch.device('mps'))
-    else:
-        checkpoint = torch.load(params.model_path, map_location=torch.device('cpu'))
-
-    pretrained_model.load_state_dict(checkpoint['state_dict'])
-
-    trainer = pl.Trainer(accelerator=params.device, logger=False)
-
-    test_loader = DataLoader(dataset=test_data,
-                             batch_size=params.batch_size,
-                             num_workers=4)
-
-    preds = [pred for batch in trainer.predict(pretrained_model, test_loader) for pred in batch.squeeze().tolist()]
-    preds = np.asarray(preds)
+    preds = predict(params)
 
     # open the actions tsv file as dataframe and add the last column with the predictions
     data = pd.read_csv('protein.pairs_string.tsv', delimiter='\t', names=["seq1", "seq2", "string_label"])
