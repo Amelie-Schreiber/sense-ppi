@@ -33,11 +33,11 @@ def main():
     params = parser.parse_args()
 
     if hasattr(params, 'device'):
-        # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
-        if params.device == 'mps':
-            logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
-                            'The cpu backend will be used instead.')
-            params.device = 'cpu'
+        # # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
+        # if params.device == 'mps':
+        #     logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
+        #                     'The cpu backend will be used instead.')
+        #     params.device = 'cpu'
 
         if params.device == 'gpu':
             torch.set_float32_matmul_precision('high')
