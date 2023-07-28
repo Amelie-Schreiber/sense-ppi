@@ -3,7 +3,6 @@ import pytorch_lightning as pl
 from itertools import permutations, product
 import numpy as np
 import pandas as pd
-import logging
 import pathlib
 import argparse
 from ..dataset import PairSequenceData
@@ -97,11 +96,7 @@ def main(params):
 
     compute_embeddings(params)
 
-    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
-    if params.device == 'mps':
-        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
-                        'The cpu backend will be used instead.')
-        params.device = 'cpu'
+    block_mps(params)
 
     logging.info('Predicting...')
     preds = predict(params)
@@ -116,8 +111,8 @@ def main(params):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser = add_args(parser)
-    params = parser.parse_args()
+    pred_parser = argparse.ArgumentParser()
+    pred_parser = add_args(pred_parser)
+    pred_params = pred_parser.parse_args()
 
-    main(params)
+    main(pred_params)

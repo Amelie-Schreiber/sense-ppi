@@ -2,6 +2,7 @@ from Bio import SeqIO
 import os
 from senseppi import __version__
 import torch
+import logging
 
 
 def add_general_args(parser):
@@ -27,6 +28,18 @@ def determine_device():
     else:
         device = 'cpu'
     return device
+
+
+def block_mps(params):
+    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
+    if hasattr(params, 'device'):
+        if params.device == 'mps':
+            logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
+                            'The cpu backend will be used instead.')
+            if torch.cuda.is_available():
+                params.device = 'gpu'
+            else:
+                params.device = 'cpu'
 
 
 def process_string_fasta(fasta_file, min_len, max_len):

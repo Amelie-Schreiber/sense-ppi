@@ -15,18 +15,13 @@ import shutil
 DOWNLOAD_LINK_STRING = "https://stringdb-downloads.org/download/"
 
 
-def generate_pairs_string(fasta_file, output_file, with_self=False, delete_proteins=None):
+def generate_pairs_string(fasta_file, output_file, delete_proteins=None):
     ids = []
     for record in SeqIO.parse(fasta_file, "fasta"):
         ids.append(record.id)
 
-    if with_self:
-        all_pairs = [p for p in product(ids, repeat=2)]
-    else:
-        all_pairs = [p for p in permutations(ids, 2)]
-
     pairs = []
-    for p in all_pairs:
+    for p in [p for p in permutations(ids, 2)]:
         if (p[1], p[0]) not in pairs and (p[0], p[1]) not in pairs:
             pairs.append(p)
 

@@ -2,8 +2,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 import pathlib
 import argparse
-import logging
-from ..utils import add_general_args
+from ..utils import *
 from ..model import SensePPIModel
 from ..dataset import PairSequenceData
 from ..esm2_model import add_esm_args, compute_embeddings
@@ -15,11 +14,7 @@ def main(params):
 
     compute_embeddings(params)
 
-    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
-    if params.device == 'mps':
-        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
-                        'The cpu backend will be used instead.')
-        params.device = 'cpu'
+    block_mps(params)
 
     dataset = PairSequenceData(emb_dir=params.output_dir_esm, actions_file=params.pairs_file,
                                max_len=params.max_len, labels=True)
@@ -80,8 +75,8 @@ def add_args(parser):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser = add_args(parser)
-    params = parser.parse_args()
+    train_parser = argparse.ArgumentParser()
+    train_parser = add_args(train_parser)
+    train_params = train_parser.parse_args()
 
-    main(params)
+    main(train_params)

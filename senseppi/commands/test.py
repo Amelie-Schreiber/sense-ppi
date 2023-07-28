@@ -1,7 +1,6 @@
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 import pandas as pd
-import logging
 import pathlib
 import argparse
 from ..dataset import PairSequenceData
@@ -72,11 +71,7 @@ def main(params):
 
     compute_embeddings(params)
 
-    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
-    if params.device == 'mps':
-        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
-                        'The cpu backend will be used instead.')
-        params.device = 'cpu'
+    block_mps(params)
 
     logging.info('Evaluating...')
     test_metrics = test(params)[0]
@@ -87,7 +82,7 @@ def main(params):
 
 if __name__ == '__main__':
     test_parser = argparse.ArgumentParser()
-    parser = add_args(test_parser)
-    params = test_parser.parse_args()
+    test_parser = add_args(test_parser)
+    test_params = test_parser.parse_args()
 
-    main(params)
+    main(test_params)

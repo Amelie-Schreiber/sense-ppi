@@ -1,5 +1,3 @@
-from torch.utils.data import DataLoader
-import pytorch_lightning as pl
 from torchmetrics import AUROC, Accuracy, Precision, Recall, F1Score, MatthewsCorrCoef
 import networkx as nx
 import seaborn as sns
@@ -10,19 +8,17 @@ from matplotlib.patches import Rectangle
 import argparse
 import matplotlib.pyplot as plt
 import glob
-import logging
-
 from ..model import SensePPIModel
 from ..utils import *
 from ..network_utils import *
 from ..esm2_model import add_esm_args, compute_embeddings
-from ..dataset import PairSequenceData
 from .predict import predict
 
 
 def main(params):
-    LABEL_THRESHOLD = params.score / 1000.
-    PRED_THRESHOLD = params.pred_threshold / 1000.
+    label_threshold = params.score / 1000.
+    pred_threshold = params.pred_threshold / 1000.
+
     pairs_file = 'protein.pairs_string.tsv'
     fasta_file = 'sequences.fasta'
 
@@ -30,22 +26,18 @@ def main(params):
     get_interactions_from_string(params.genes, species=params.species, add_nodes=params.nodes,
                                  required_score=params.score, network_type=params.network_type)
     process_string_fasta(fasta_file, min_len=params.min_len, max_len=params.max_len)
-    generate_pairs_string(fasta_file, output_file=pairs_file, with_self=False, delete_proteins=params.delete_proteins)
+    generate_pairs_string(fasta_file, output_file=pairs_file, delete_proteins=params.delete_proteins)
 
     params.fasta_file = fasta_file
     compute_embeddings(params)
 
-    # WARNING: due to some internal issues of pytorch, the mps backend is temporarily disabled
-    if params.device == 'mps':
-        logging.warning('WARNING: due to some internal issues of torch, the mps backend is temporarily disabled.'
-                        'The cpu backend will be used instead.')
-        params.device = 'cpu'
+    block_mps(params)
 
     preds = predict(params)
 
     # open the actions tsv file as dataframe and add the last column with the predictions
     data = pd.read_csv('protein.pairs_string.tsv', delimiter='\t', names=["seq1", "seq2", "string_label"])
-    data['binary_label'] = data['string_label'].apply(lambda x: 1 if x > LABEL_THRESHOLD else 0)
+    data['binary_label'] = data['string_label'].apply(lambda x: 1 if x > label_threshold else 0)
     data['preds'] = preds
 
     print(data.sort_values(by=['preds'], ascending=False).to_string())
@@ -53,13 +45,18 @@ def main(params):
     # Calculate torch metrics based on data['binary_label'] and data['preds']
     torch_labels = torch.tensor(data['binary_label'])
     torch_preds = torch.tensor(data['preds'])
-    print('Accuracy: ', Accuracy(threshold=PRED_THRESHOLD, task='binary')(torch_preds, torch_labels))
-    print('Precision: ', Precision(threshold=PRED_THRESHOLD, task='binary')(torch_preds, torch_labels))
-    print('Recall: ', Recall(threshold=PRED_THRESHOLD, task='binary')(torch_preds, torch_labels))
-    print('F1Score: ', F1Score(threshold=PRED_THRESHOLD, task='binary')(torch_preds, torch_labels))
+    print('Accuracy: ',
+          Accuracy(threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
+    print('Precision: ',
+          Precision(threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
+    print('Recall: ',
+          Recall(threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
+    print('F1Score: ',
+          F1Score(threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
     print('MatthewsCorrCoef: ',
-          MatthewsCorrCoef(num_classes=2, threshold=PRED_THRESHOLD, task='binary')(torch_preds, torch_labels))
-    print('ROCAUC: ', AUROC(task='binary')(torch_preds, torch_labels))
+          MatthewsCorrCoef(num_classes=2, threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
+    print('ROCAUC: ',
+          AUROC(task='binary')(torch_preds, torch_labels))
 
     string_ids = {}
     string_tsv = pd.read_csv('string_interactions.tsv', delimiter='\t')[
@@ -73,37 +70,6 @@ def main(params):
     data_to_save['seq2'] = data_to_save['seq2'].apply(lambda x: string_ids[x])
     data_to_save = data_to_save.sort_values(by=['preds'], ascending=False)
     data_to_save.to_csv(params.output + '.tsv', sep='\t', index=False)
-
-    # This part was needed to color the pairs belonging to the train data, temporarily removed
-
-    # print('Fetching gene names for training set from STRING...')
-    #
-    # if not os.path.exists('all_genes_train.tsv'):
-    #     all_genes = generate_dscript_gene_names(
-    #         file_path=actions_path,
-    #         only_positives=True,
-    #         species=str(hparams.species))
-    #     all_genes.to_csv('all_genes_train.tsv', sep='\t', index=False)
-    # else:
-    #     all_genes = pd.read_csv('all_genes_train.tsv', sep='\t')
-
-    # full_train_data = pd.read_csv(actions_path,
-    #                               delimiter='\t', names=['seq1', 'seq2', 'label'])
-    #
-    # if all_genes is not None:
-    #     full_train_data = full_train_data.merge(all_genes, left_on='seq1', right_on='QueryString', how='left').merge(
-    #         all_genes, left_on='seq2', right_on='QueryString', how='left')
-    #
-    #     full_train_data = full_train_data[['preferredName_x', 'preferredName_y', 'label']]
-    #
-    #     positive_train_data = full_train_data[full_train_data['label'] == 1][['preferredName_x', 'preferredName_y']]
-    #     full_train_data = full_train_data[['preferredName_x', 'preferredName_y']]
-    #
-    #     full_train_data = [tuple(x) for x in full_train_data.values]
-    #     positive_train_data = [tuple(x) for x in positive_train_data.values]
-    # else:
-    #     full_train_data = None
-    #     positive_train_data = None
 
     if params.graphs:
         # Create two subpolots but make a short gap between them
@@ -154,14 +120,6 @@ def main(params):
             np.triu_indices_from(data_heatmap.values)]
         labels_heatmap.fillna(value=-1, inplace=True)
 
-        # This part was needed to color the pairs belonging to the train data, temporarily removed
-
-        # if full_train_data is not None:
-        #     for i, row in labels_heatmap.iterrows():
-        #         for j, _ in row.items():
-        #             if (i, j) in full_train_data or (j, i) in full_train_data:
-        #                 labels_heatmap.loc[i, j] = -1
-
         cmap = matplotlib.cm.get_cmap('coolwarm').copy()
         cmap.set_bad("black")
 
@@ -179,53 +137,40 @@ def main(params):
         for i in range(len(labels_heatmap)):
             ax1.add_patch(Rectangle((i, i), 1, 1, fill=True, color='white', alpha=1, zorder=100))
 
-        G = nx.Graph()
+        pred_graph = nx.Graph()
+
         for i, row in data.iterrows():
-            if row['string_label'] > LABEL_THRESHOLD:
-                G.add_edge(row['seq1'], row['seq2'], color='black', weight=row['string_label'], style='dotted')
-            if row['preds'] > PRED_THRESHOLD and G.has_edge(row['seq1'], row['seq2']):
-                G[row['seq1']][row['seq2']]['style'] = 'solid'
-                G[row['seq1']][row['seq2']]['color'] = 'limegreen'
-            if row['preds'] > PRED_THRESHOLD and row['string_label'] <= LABEL_THRESHOLD:
-                G.add_edge(row['seq1'], row['seq2'], color='red', weight=row['preds'], style='solid')
+            if row['string_label'] > label_threshold:
+                pred_graph.add_edge(row['seq1'], row['seq2'], color='black', weight=row['string_label'], style='dotted')
+            if row['preds'] > pred_threshold and pred_graph.has_edge(row['seq1'], row['seq2']):
+                pred_graph[row['seq1']][row['seq2']]['style'] = 'solid'
+                pred_graph[row['seq1']][row['seq2']]['color'] = 'limegreen'
+            if row['preds'] > pred_threshold and row['string_label'] <= label_threshold:
+                pred_graph.add_edge(row['seq1'], row['seq2'], color='red', weight=row['preds'], style='solid')
+
+        for node in pred_graph.nodes():
+            pred_graph.nodes[node]['color'] = 'lightgrey'
 
         # Replace the string ids with gene names
-        G = nx.relabel_nodes(G, string_ids)
+        pred_graph = nx.relabel_nodes(pred_graph, string_ids)
 
-        # This part was needed to color the pairs belonging to the train data, temporarily removed
-
-        # if positive_train_data is not None:
-        #     for edge in G.edges():
-        #         if (edge[0], edge[1]) in positive_train_data or (edge[1], edge[0]) in positive_train_data:
-        #             print('TRAINING EDGE: ', edge)
-        #             G[edge[0]][edge[1]]['color'] = 'darkblue'
-        #             # G[edge[0]][edge[1]]['weight'] = 1
-
-        # Make nodes red if they are present in training data
-        for node in G.nodes():
-            # if all_genes is not None and node in all_genes['preferredName'].values:
-            #     G.nodes[node]['color'] = 'orange'
-            # else:
-            G.nodes[node]['color'] = 'lightgrey'
-
-        pos = nx.spring_layout(G, k=2., iterations=100)
-        nx.draw(G, pos=pos, with_labels=True, ax=ax2,
-                edge_color=[G[u][v]['color'] for u, v in G.edges()], width=[G[u][v]['weight'] for u, v in G.edges()],
-                style=[G[u][v]['style'] for u, v in G.edges()],
-                node_color=[G.nodes[node]['color'] for node in G.nodes()])
+        pos = nx.spring_layout(pred_graph, k=2., iterations=100)
+        nx.draw(pred_graph, pos=pos, with_labels=True, ax=ax2,
+                edge_color=[pred_graph[u][v]['color'] for u, v in pred_graph.edges()],
+                width=[pred_graph[u][v]['weight'] for u, v in pred_graph.edges()],
+                style=[pred_graph[u][v]['style'] for u, v in pred_graph.edges()],
+                node_color=[pred_graph.nodes[node]['color'] for node in pred_graph.nodes()])
 
         legend_elements = [
-            # Line2D([0], [0], marker='_', color='darkblue', label='PP from training data', markerfacecolor='darkblue',
-            #        markersize=10),
             Line2D([0], [0], marker='_', color='limegreen', label='PP', markerfacecolor='limegreen', markersize=10),
             Line2D([0], [0], marker='_', color='red', label='FP', markerfacecolor='red', markersize=10),
             Line2D([0], [0], marker='_', color='black', label='FN - based on STRING', markerfacecolor='black',
                    markersize=10, linestyle='dotted')]
         plt.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.2, 0.0), ncol=1, fontsize=8)
 
-        savepath = '{}_graph_{}_{}.pdf'.format(params.output, '_'.join(params.genes), params.species)
-        plt.savefig(savepath, bbox_inches='tight', dpi=600)
-        print("The graphs were saved to: ", savepath)
+        save_path = '{}_graph_{}_{}.pdf'.format(params.output, '_'.join(params.genes), params.species)
+        plt.savefig(save_path, bbox_inches='tight', dpi=600)
+        print("The graphs were saved to: ", save_path)
         plt.show()
         plt.close()
 
@@ -235,6 +180,7 @@ def main(params):
         os.remove(f)
     os.remove('string_interactions.tsv')
 
+
 def add_args(parser):
     parser = add_general_args(parser)
 
@@ -242,24 +188,25 @@ def add_args(parser):
     parser._action_groups[0].add_argument("model_path", type=str,
                                           help="A path to .ckpt file that contains weights to a pretrained model.")
     parser._action_groups[0].add_argument("genes", type=str, nargs="+",
-                         help="Name of gene to fetch from STRING database. Several names can be typed (separated by "
-                              "whitespaces)")
+                                          help="Name of gene to fetch from STRING database. Several names can be "
+                                               "typed (separated by whitespaces).")
     string_pred_args.add_argument("-s", "--species", type=int, default=9606,
-                         help="Species from STRING database. Default: 9606 (H. Sapiens)")
+                                  help="Species from STRING database. Default: 9606 (H. Sapiens)")
     string_pred_args.add_argument("-n", "--nodes", type=int, default=10,
-                         help="Number of nodes to fetch from STRING database. Default: 10")
+                                  help="Number of nodes to fetch from STRING database. Default: 10")
     string_pred_args.add_argument("-r", "--score", type=int, default=0,
-                         help="Score threshold for STRING connections. Range: (0, 1000). Default: 500")
+                                  help="Score threshold for STRING connections. Range: (0, 1000). Default: 500")
     string_pred_args.add_argument("-p", "--pred_threshold", type=int, default=500,
-                         help="Prediction threshold. Range: (0, 1000). Default: 500")
-    string_pred_args.add_argument("--graphs", action='store_true', help="Enables plotting the heatmap and a network graph.")
+                                  help="Prediction threshold. Range: (0, 1000). Default: 500")
+    string_pred_args.add_argument("--graphs", action='store_true',
+                                  help="Enables plotting the heatmap and a network graph.")
     string_pred_args.add_argument("-o", "--output", type=str, default="preds_from_string",
-                              help="A path to a file where the predictions will be saved. "
-                                   "(.tsv format will be added automatically)")
+                                  help="A path to a file where the predictions will be saved. "
+                                       "(.tsv format will be added automatically)")
     string_pred_args.add_argument("--network_type", type=str, default="physical",
-                         help="Network type: \"physical\" or \"functional\". Default: \"physical\"")
+                                  help="Network type: \"physical\" or \"functional\". Default: \"physical\"")
     string_pred_args.add_argument("--delete_proteins", type=str, nargs="+", default=None,
-                         help="List of proteins to delete from the graph. Default: None")
+                                  help="List of proteins to delete from the graph. Default: None")
 
     parser = SensePPIModel.add_model_specific_args(parser)
     remove_argument(parser, "--lr")
@@ -269,6 +216,8 @@ def add_args(parser):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser = add_args(parser)
-    params = parser.parse_args()
+    pred_parser = argparse.ArgumentParser()
+    pred_parser = add_args(pred_parser)
+    pred_params = pred_parser.parse_args()
+
+    main(pred_params)
