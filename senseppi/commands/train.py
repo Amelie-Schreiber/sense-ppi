@@ -1,5 +1,5 @@
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, TQDMProgressBar
 import pathlib
 import argparse
 from ..utils import *
@@ -29,7 +29,7 @@ def main(params):
     logger = None
 
     callbacks = [
-        # TQDMProgressBar(refresh_rate=250),
+        TQDMProgressBar(refresh_rate=50),
         ModelCheckpoint(filename='chkpt_loss_based_{epoch}-{val_loss:.3f}-{val_BinaryF1Score:.3f}', verbose=True,
                         monitor='val_loss', mode='min', save_top_k=1)
     ]
