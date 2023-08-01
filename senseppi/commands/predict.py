@@ -96,8 +96,6 @@ def main(params):
 
     compute_embeddings(params)
 
-    block_mps(params)
-
     logging.info('Predicting...')
     preds = predict(params)
 

@@ -3,6 +3,7 @@ import logging
 import torch
 from .commands import *
 from senseppi import __version__
+from senseppi.utils import block_mps
 
 
 def main():
@@ -20,7 +21,7 @@ def main():
 
     modules = {'train': train,
                'predict': predict,
-               'string_dataset_create': string_dataset_create,
+               'create_dataset': create_dataset,
                'test': test,
                'predict_string': predict_string
                }
@@ -35,6 +36,8 @@ def main():
     if hasattr(params, 'device'):
         if params.device == 'gpu':
             torch.set_float32_matmul_precision('high')
+
+        block_mps(params)
 
         logging.info('Device used: {}'.format(params.device))
 

@@ -31,8 +31,6 @@ def main(params):
     params.fasta_file = fasta_file
     compute_embeddings(params)
 
-    block_mps(params)
-
     preds = predict(params)
 
     # open the actions tsv file as dataframe and add the last column with the predictions

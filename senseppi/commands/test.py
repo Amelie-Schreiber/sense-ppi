@@ -71,8 +71,6 @@ def main(params):
 
     compute_embeddings(params)
 
-    block_mps(params)
-
     logging.info('Evaluating...')
     test_metrics = test(params)[0]
 

@@ -14,8 +14,6 @@ def main(params):
 
     compute_embeddings(params)
 
-    block_mps(params)
-
     dataset = PairSequenceData(emb_dir=params.output_dir_esm, actions_file=params.pairs_file,
                                max_len=params.max_len, labels=True)
 
