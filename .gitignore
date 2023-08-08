@@ -127,3 +127,5 @@ dmypy.json
 /esm2_embs_3B
 *.sh
 draft.py
+/data/string_species/mmseqs_dbs/
+/data/human_virus/all_test_viruses.csv
