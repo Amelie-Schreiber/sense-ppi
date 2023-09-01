@@ -29,6 +29,7 @@ def main(params):
     generate_pairs_string(fasta_file, output_file=pairs_file, delete_proteins=params.delete_proteins)
 
     params.fasta_file = fasta_file
+    params.pairs_file = pairs_file
     compute_embeddings(params)
 
     preds = predict(params)
@@ -193,7 +194,7 @@ def add_args(parser):
     string_pred_args.add_argument("-n", "--nodes", type=int, default=10,
                                   help="Number of nodes to fetch from STRING database. Default: 10")
     string_pred_args.add_argument("-r", "--score", type=int, default=0,
-                                  help="Score threshold for STRING connections. Range: (0, 1000). Default: 500")
+                                  help="Score threshold for STRING connections. Range: (0, 1000). Default: 0")
     string_pred_args.add_argument("-p", "--pred_threshold", type=int, default=500,
                                   help="Prediction threshold. Range: (0, 1000). Default: 500")
     string_pred_args.add_argument("--graphs", action='store_true',
