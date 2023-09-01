@@ -266,7 +266,7 @@ def add_args(parser):
                         help="The minimum length of a protein to be included in the dataset.")
     parser.add_argument("--max_length", type=int, default=800,
                         help="The maximum length of a protein to be included in the dataset.")
-    parser.add_argument("--max_positive_pairs", type=int, default=5000,
+    parser.add_argument("--max_positive_pairs", type=int, default=None,
                         help="The maximum number of positive pairs to be included in the dataset. "
                              "If None, all pairs are included. If specified, the pairs are selected "
                              "based on the combined score in STRING.")
