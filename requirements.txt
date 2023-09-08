@@ -1,0 +1,14 @@
+numpy
+pandas
+wget
+scipy
+networkx
+torch>=1.12
+matplotlib
+seaborn
+tqdm
+scikit-learn
+pytorch-lightning==1.9.0
+torchmetrics
+biopython
+fair-esm
