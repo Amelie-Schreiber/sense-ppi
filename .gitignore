@@ -129,3 +129,4 @@ dmypy.json
 draft.py
 /data/string_species/mmseqs_dbs/
 /data/human_virus/all_test_viruses.csv
+/esm2_backup
