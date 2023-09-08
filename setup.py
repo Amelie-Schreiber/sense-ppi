@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 setup(
     name="senseppi",
     version=senseppi.__version__,
-    description="SENSE_PPI: Sequence-based EvolutioNary ScalE Protein-Protein Interaction prediction",
+    description="SENSE-PPI: Sequence-based EvolutioNary ScalE Protein-Protein Interaction prediction",
     author="Konstantin Volzhenin",
     author_email="konstantin.volzhenin@sorbonne-universite.fr",
     url="",
