@@ -68,7 +68,7 @@ def add_args(parser):
     parser._action_groups[0].add_argument("fasta_file", type=pathlib.Path,
                                           help="FASTA file on which to extract the ESM2 representations and then test.",
                                           )
-    predict_args.add_argument("--model_path", type=str, default=os.path.join(os.path.dirname(__file__), "..", "senseppi.ckpt"),
+    predict_args.add_argument("--model_path", type=str, default=os.path.join(os.path.dirname(__file__), "..", "default_model", "senseppi.ckpt"),
                                           help="A path to .ckpt file that contains weights to a pretrained model. If "
                                                "None, the senseppi trained version is used.")
     predict_args.add_argument("--pairs_file", type=str, default=None,

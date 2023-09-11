@@ -13,7 +13,7 @@ setup(
     url="",
     license="MIT",
     packages=find_packages(),
-
+    package_data={'senseppi': ['default_model/*']},
     long_description=long_description,
     long_description_content_type="text/markdown",
     include_package_data=True,
