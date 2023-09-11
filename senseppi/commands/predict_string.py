@@ -184,11 +184,12 @@ def add_args(parser):
     parser = add_general_args(parser)
 
     string_pred_args = parser.add_argument_group(title="General options")
-    parser._action_groups[0].add_argument("model_path", type=str,
-                                          help="A path to .ckpt file that contains weights to a pretrained model.")
     parser._action_groups[0].add_argument("genes", type=str, nargs="+",
                                           help="Name of gene to fetch from STRING database. Several names can be "
                                                "typed (separated by whitespaces).")
+    string_pred_args.add_argument("--model_path", type=str, default=os.path.join(os.path.dirname(__file__), "..", "senseppi.ckpt"),
+                                  help="A path to .ckpt file that contains weights to a pretrained model. If "
+                                       "None, the senseppi trained version is used.")
     string_pred_args.add_argument("-s", "--species", type=int, default=9606,
                                   help="Species from STRING database. Default: 9606 (H. Sapiens)")
     string_pred_args.add_argument("-n", "--nodes", type=int, default=10,

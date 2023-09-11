@@ -37,8 +37,6 @@ def add_args(parser):
     parser = add_general_args(parser)
 
     test_args = parser.add_argument_group(title="Predict args")
-    parser._action_groups[0].add_argument("model_path", type=str,
-                                          help="A path to .ckpt file that contains weights to a pretrained model.")
     parser._action_groups[0].add_argument("pairs_file", type=str, default=None,
                                           help="A path to a .tsv file with pairs of proteins to test.")
     parser._action_groups[0].add_argument("fasta_file",
@@ -46,12 +44,15 @@ def add_args(parser):
                                           help="FASTA file on which to extract the ESM2 "
                                                "representations and then evaluate.",
                                           )
+    test_args.add_argument("--model_path", type=str, default=os.path.join(os.path.dirname(__file__), "..", "senseppi.ckpt"),
+                           help="A path to .ckpt file that contains weights to a pretrained model. If "
+                                "None, the senseppi trained version is used.")
     test_args.add_argument("-o", "--output", type=str, default="test_metrics",
-                              help="A path to a file where the test metrics will be saved. "
-                                   "(.tsv format will be added automatically)")
+                           help="A path to a file where the test metrics will be saved. "
+                                "(.tsv format will be added automatically)")
     test_args.add_argument("--crop_data_to_model_lims", action="store_true",
-                              help="If set, the data will be cropped to the limits of the model: "
-                                   "evaluations will be done only for proteins >50aa and <800aa.")
+                           help="If set, the data will be cropped to the limits of the model: "
+                                "evaluations will be done only for proteins >50aa and <800aa.")
 
     parser = SensePPIModel.add_model_specific_args(parser)
     remove_argument(parser, "--lr")

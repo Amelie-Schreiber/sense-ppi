@@ -65,11 +65,12 @@ def add_args(parser):
     parser = add_general_args(parser)
 
     predict_args = parser.add_argument_group(title="Predict args")
-    parser._action_groups[0].add_argument("model_path", type=str,
-                                          help="A path to .ckpt file that contains weights to a pretrained model.")
     parser._action_groups[0].add_argument("fasta_file", type=pathlib.Path,
                                           help="FASTA file on which to extract the ESM2 representations and then test.",
                                           )
+    predict_args.add_argument("--model_path", type=str, default=os.path.join(os.path.dirname(__file__), "..", "senseppi.ckpt"),
+                                          help="A path to .ckpt file that contains weights to a pretrained model. If "
+                                               "None, the senseppi trained version is used.")
     predict_args.add_argument("--pairs_file", type=str, default=None,
                               help="A path to a .tsv file with pairs of proteins to test (Optional). If not provided, "
                                    "all-to-all pairs will be generated.")
