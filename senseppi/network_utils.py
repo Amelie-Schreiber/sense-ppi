@@ -1,13 +1,9 @@
 import json
 from Bio import SeqIO
-from itertools import permutations, product
+from itertools import permutations
 import pandas as pd
-import numpy as np
 import os
 import urllib.request
-import time
-from tqdm import tqdm
-from copy import deepcopy
 import requests
 import gzip
 import shutil

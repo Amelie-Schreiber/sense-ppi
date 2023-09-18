@@ -15,7 +15,8 @@ def add_general_args(parser):
                              "considered and will be deleted from the fasta file.")
     parser.add_argument("--device", type=str, default=determine_device(), choices=['cpu', 'gpu', 'mps'],
                         help="Device to used for computations. Options include: cpu, gpu, mps (for MacOS)."
-                             "If not selected the device is set by torch automatically.")
+                             "If not selected the device is set by torch automatically. WARNING: mps is temporarily "
+                             "disabled, if it is chosen, cpu will be used instead.")
 
     return parser
 

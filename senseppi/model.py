@@ -1,10 +1,11 @@
+import argparse
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 import torch.utils.data as data
 from torch.utils.data import Subset
-from torchmetrics import AUROC, ROC, Accuracy, Precision, Recall, F1Score, MatthewsCorrCoef, AveragePrecision
+from torchmetrics import AUROC, Accuracy, Precision, Recall, F1Score, MatthewsCorrCoef, AveragePrecision
 from torchmetrics.collections import MetricCollection
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import torch.optim as optim
@@ -206,9 +207,10 @@ class BaselineModel(pl.LightningModule):
                                                                    "Cosine warmup will be applied.")
         parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training/testing.")
         parser.add_argument("--encoder_features", type=int, default=2560,
-                            help="Number of features in the encoder "
-                                 "(Corresponds to the dimentionality of per-token embedding of ESM2 model.) "
-                                 "If not a 3B version of ESM2 is chosen, this parameter needs to be set accordingly.")
+                            # help="Number of features in the encoder "
+                            #      "(Corresponds to the dimentionality of per-token embedding of ESM2 model.) "
+                            #      "If not a 3B version of ESM2 is chosen, this parameter needs to be set accordingly."
+                            help=argparse.SUPPRESS)
         return parent_parser
 
 

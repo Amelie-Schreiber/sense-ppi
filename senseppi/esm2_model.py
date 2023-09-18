@@ -1,5 +1,6 @@
 #!/usr/bin/env python3 -u
 # Copyright (c) Meta Platforms, Inc. and affiliates.
+# Modified by Konstantin Volzhenin, Sorbonne University, 2023
 
 import argparse
 import pathlib
@@ -20,8 +21,9 @@ def add_esm_args(parent_parser):
     parser.add_argument(
         "--model_location_esm",
         type=str, default="esm2_t36_3B_UR50D",
-        help="PyTorch model file OR name of pretrained model to download. If not default, "
-             "the number of encoder_features has to be modified according to the embedding dimensionality. "
+        # help="PyTorch model file OR name of pretrained model to download. If not default, "
+        #      "the number of encoder_features has to be modified according to the embedding dimensionality. "
+        help=argparse.SUPPRESS
     )
     parser.add_argument(
         "--output_dir_esm",
@@ -35,13 +37,15 @@ def add_esm_args(parent_parser):
         type=int,
         default=[-1],
         nargs="+",
-        help="layers indices from which to extract representations (0 to num_layers, inclusive)",
+        # help="layers indices from which to extract representations (0 to num_layers, inclusive)",
+        help=argparse.SUPPRESS
     )
     parser.add_argument(
         "--truncation_seq_length_esm",
         type=int,
         default=1022,
-        help="truncate sequences longer than the given value",
+        # help="truncate sequences longer than the given value",
+        help=argparse.SUPPRESS
     )
 
 
