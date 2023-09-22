@@ -258,8 +258,9 @@ def add_args(parser):
                         help="The sequences file downloaded from the same page of STRING. "
                              "For both files see https://string-db.org/cgi/download")
     parser.add_argument("--not_remove_long_short_proteins", action='store_true',
-                        help="Whether to remove proteins that are too short or too long. "
-                             "Normally, the long and short proteins are removed.")
+                        help="If specified, does not remove proteins "
+                             "shorter than --min_length and longer than --max_length. "
+                             "By default, long and short proteins are removed.")
     parser.add_argument("--min_length", type=int, default=50,
                         help="The minimum length of a protein to be included in the dataset.")
     parser.add_argument("--max_length", type=int, default=800,
@@ -290,27 +291,30 @@ def main(params):
         logging.info('STRING version: {}'.format(version))
 
         try:
-            url = "{0}protein.physical.links.full.v{1}/{2}.protein.physical.links.full.v{1}.txt.gz".format(DOWNLOAD_LINK_STRING, version, params.species)
+            url = "{0}protein.physical.links.full.v{1}/{2}.protein.physical.links.full.v{1}.txt.gz".format(
+                DOWNLOAD_LINK_STRING, version, params.species)
             string_file_name_links = "{1}.protein.physical.links.full.v{0}.txt".format(version, params.species)
-            wget.download(url, out=string_file_name_links+'.gz')
-            with gzip.open(string_file_name_links+'.gz', 'rb') as f_in:
+            wget.download(url, out=string_file_name_links + '.gz')
+            with gzip.open(string_file_name_links + '.gz', 'rb') as f_in:
                 with open(string_file_name_links, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
 
-            url = "{0}protein.sequences.v{1}/{2}.protein.sequences.v{1}.fa.gz".format(DOWNLOAD_LINK_STRING, version, params.species)
+            url = "{0}protein.sequences.v{1}/{2}.protein.sequences.v{1}.fa.gz".format(DOWNLOAD_LINK_STRING, version,
+                                                                                      params.species)
             string_file_name_seqs = "{1}.protein.sequences.v{0}.fa".format(version, params.species)
-            wget.download(url, out=string_file_name_seqs+'.gz')
-            with gzip.open(string_file_name_seqs+'.gz', 'rb') as f_in:
+            wget.download(url, out=string_file_name_seqs + '.gz')
+            with gzip.open(string_file_name_seqs + '.gz', 'rb') as f_in:
                 with open(string_file_name_seqs, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
         except HTTPError:
             raise Exception('The files are not available for the specified species. '
-                         'There might be two reasons for that: \n '
-                         '1) the species is not available in STRING. Please check the STRING species list to verify. \n'
-                         '2) the download link has changed. Please raise an issue in the repository. ')
+                            'There might be two reasons for that: \n '
+                            '1) the species is not available in STRING. Please check the STRING species list to '
+                            'verify. \n '
+                            '2) the download link has changed. Please raise an issue in the repository. ')
 
-        os.remove(string_file_name_seqs+'.gz')
-        os.remove(string_file_name_links+'.gz')
+        os.remove(string_file_name_seqs + '.gz')
+        os.remove(string_file_name_links + '.gz')
 
         params.interactions = string_file_name_links
         params.sequences = string_file_name_seqs
@@ -330,4 +334,3 @@ if __name__ == '__main__':
     parser = add_args(parser)
     params = parser.parse_args()
     main(params)
-

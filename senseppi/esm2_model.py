@@ -16,8 +16,10 @@ def add_esm_args(parent_parser):
     parser = parent_parser.add_argument_group(title="ESM2 model args",
                                               description="ESM2: Extract per-token representations and model "
                                                           "outputs for sequences in a FASTA file. "
-                                                          "If you would like to use the basic version of SENSE-PPI "
-                                                          "do no edit the default values of the arguments below. ")
+                                                          "The representations are saved in --output_dir_esm folder so "
+                                                          "they can be reused in multiple runs. In order to reuse the "
+                                                          "embeddings, make sure that --output_dir_esm is set to the "
+                                                          "correct folder.")
     parser.add_argument(
         "--model_location_esm",
         type=str, default="esm2_t36_3B_UR50D",

@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import torch
 from .commands import *
 from senseppi import __version__
@@ -43,6 +44,10 @@ def main():
         block_mps(params)
 
         logging.info('Device used: {}'.format(params.device))
+
+    if hasattr(params, 'model_path'):
+        if params.model_path is None:
+            params.model_path = os.path.join(os.path.dirname(__file__), "default_model", "senseppi.ckpt")
 
     params.func(params)
 

@@ -109,7 +109,7 @@ def main(params):
 
         sns.heatmap(labels_heatmap, cmap=cmap, vmin=0, vmax=1,
                     ax=ax1, mask=labels_heatmap == -1,
-                    cbar=False, square=True)  # , linewidths=0.5, linecolor='white')
+                    cbar=False, square=True)
 
         cbar = ax1.figure.colorbar(ax1.collections[0], ax=ax1, location='right', pad=0.15)
         cbar.ax.yaxis.set_ticks_position('right')
@@ -172,26 +172,28 @@ def add_args(parser):
     parser._action_groups[0].add_argument("genes", type=str, nargs="+",
                                           help="Name of gene to fetch from STRING database. Several names can be "
                                                "typed (separated by whitespaces).")
-    string_pred_args.add_argument("--model_path", type=str, default=os.path.join(os.path.dirname(__file__), "..", "default_model", "senseppi.ckpt"),
+    string_pred_args.add_argument("--model_path", type=str, default=None,
                                   help="A path to .ckpt file that contains weights to a pretrained model. If "
-                                       "None, the senseppi trained version is used.")
+                                       "None, the preinstalled senseppi.ckpt trained version is used. "
+                                       "(Trained on human PPIs)")
     string_pred_args.add_argument("-s", "--species", type=int, default=9606,
-                                  help="Species from STRING database. Default: 9606 (H. Sapiens)")
+                                  help="Species from STRING database. Default: H. Sapiens")
     string_pred_args.add_argument("-n", "--nodes", type=int, default=10,
-                                  help="Number of nodes to fetch from STRING database. Default: 10")
+                                  help="Number of nodes to fetch from STRING database. ")
     string_pred_args.add_argument("-r", "--score", type=int, default=0,
-                                  help="Score threshold for STRING connections. Range: (0, 1000). Default: 0")
+                                  help="Score threshold for STRING connections. Range: (0, 1000). ")
     string_pred_args.add_argument("-p", "--pred_threshold", type=int, default=500,
-                                  help="Prediction threshold. Range: (0, 1000). Default: 500")
+                                  help="Prediction threshold. Range: (0, 1000). ")
     string_pred_args.add_argument("--graphs", action='store_true',
                                   help="Enables plotting the heatmap and a network graph.")
     string_pred_args.add_argument("-o", "--output", type=str, default="preds_from_string",
                                   help="A path to a file where the predictions will be saved. "
                                        "(.tsv format will be added automatically)")
-    string_pred_args.add_argument("--network_type", type=str, default="physical",
-                                  help="Network type: \"physical\" or \"functional\". Default: \"physical\"")
+    string_pred_args.add_argument("--network_type", type=str, default="physical", choices=['physical', 'functional'],
+                                  help="Network type to fetch from STRING database. ")
     string_pred_args.add_argument("--delete_proteins", type=str, nargs="+", default=None,
-                                  help="List of proteins to delete from the graph. Default: None")
+                                  help="List of proteins to delete from the graph. "
+                                       "Several names can be specified separated by whitespaces. ")
 
     parser = SensePPIModel.add_model_specific_args(parser)
     remove_argument(parser, "--lr")

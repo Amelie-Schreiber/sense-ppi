@@ -7,14 +7,27 @@ import argparse
 
 
 class ArgumentParserWithDefaults(argparse.ArgumentParser):
-    def add_argument(self, *args, help=None, default=None, **kwargs):
-        if help is not None:
-            kwargs['help'] = help
-        if default is not None and args[0] != '-h':
-            kwargs['default'] = default
-            if help is not None:
-                kwargs['help'] += ' Default: {}'.format(default)
+    def add_argument(self, *args, **kwargs):
+        if 'help' in kwargs and kwargs['help'] is not argparse.SUPPRESS and 'default' in kwargs and args[0] != '-h':
+            kwargs['help'] += ' (Default: {})'.format(kwargs['default'])
         super().add_argument(*args, **kwargs)
+
+    def add_argument_group(self, *args, **kwargs):
+        group = ArgumentGroupWithDefaults(self, *args, **kwargs)
+        self._action_groups.append(group)
+        return group
+
+
+class ArgumentGroupWithDefaults(argparse._ArgumentGroup):
+    def add_argument(self, *args, **kwargs):
+        if 'help' in kwargs and kwargs['help'] is not argparse.SUPPRESS and 'default' in kwargs and args[0] != '-h':
+            kwargs['help'] += ' (Default: {})'.format(kwargs['default'])
+        super().add_argument(*args, **kwargs)
+
+    def add_argument_group(self, *args, **kwargs):
+        group = self._ArgumentGroup(self, *args, **kwargs)
+        self._action_groups.append(group)
+        return group
 
 
 def add_general_args(parser):

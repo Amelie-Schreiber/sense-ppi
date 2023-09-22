@@ -107,7 +107,9 @@ def get_interactions_from_string(gene_names, species=9606, add_nodes=10, require
     string_interactions = pd.DataFrame([line.split('\t') for line in lines[1:]], columns=lines[0].split('\t'))
 
     if 'Error' in string_interactions.columns:
-        raise Exception(string_interactions['ErrorMessage'].values[0])
+        err_msg = string_interactions['ErrorMessage'].values[0]
+        err_msg = err_msg.replace('<br>', '\n').replace('<br/>', '\n').replace('<p>', '\n').replace('</p>', '\n')
+        raise Exception(err_msg)
     if len(string_interactions) == 0:
         raise Exception('No interactions found. Please revise your input parameters.')
 

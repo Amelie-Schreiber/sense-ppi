@@ -68,9 +68,10 @@ def add_args(parser):
     parser._action_groups[0].add_argument("fasta_file", type=pathlib.Path,
                                           help="FASTA file on which to extract the ESM2 representations and then test.",
                                           )
-    predict_args.add_argument("--model_path", type=str, default=os.path.join(os.path.dirname(__file__), "..", "default_model", "senseppi.ckpt"),
-                                          help="A path to .ckpt file that contains weights to a pretrained model. If "
-                                               "None, the senseppi trained version is used.")
+    predict_args.add_argument("--model_path", type=str, default=None,
+                              help="A path to .ckpt file that contains weights to a pretrained model. If "
+                                   "None, the preinstalled senseppi.ckpt trained version is used. "
+                                   "(Trained on human PPIs)")
     predict_args.add_argument("--pairs_file", type=str, default=None,
                               help="A path to a .tsv file with pairs of proteins to test (Optional). If not provided, "
                                    "all-to-all pairs will be generated.")
@@ -79,7 +80,7 @@ def add_args(parser):
                                    "(.tsv format will be added automatically)")
     predict_args.add_argument("--with_self", action='store_true',
                               help="Include self-interactions in the predictions."
-                                   "By default they are not included since they were not part of training but"
+                                   "By default they are not included since they were not part of training but "
                                    "they can be included by setting this flag to True.")
     predict_args.add_argument("-p", "--pred_threshold", type=float, default=0.5,
                               help="Prediction threshold to determine interacting pairs that "
