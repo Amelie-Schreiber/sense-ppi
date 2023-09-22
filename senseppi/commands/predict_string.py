@@ -42,22 +42,6 @@ def main(params):
 
     print(data.sort_values(by=['preds'], ascending=False).to_string())
 
-    # Calculate torch metrics based on data['binary_label'] and data['preds']
-    torch_labels = torch.tensor(data['binary_label'])
-    torch_preds = torch.tensor(data['preds'])
-    print('Accuracy: ',
-          Accuracy(threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
-    print('Precision: ',
-          Precision(threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
-    print('Recall: ',
-          Recall(threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
-    print('F1Score: ',
-          F1Score(threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
-    print('MatthewsCorrCoef: ',
-          MatthewsCorrCoef(num_classes=2, threshold=pred_threshold, task='binary')(torch_preds, torch_labels))
-    print('ROCAUC: ',
-          AUROC(task='binary')(torch_preds, torch_labels))
-
     string_ids = {}
     string_tsv = pd.read_csv('string_interactions.tsv', delimiter='\t')[
         ['preferredName_A', 'preferredName_B', 'stringId_A', 'stringId_B']]
