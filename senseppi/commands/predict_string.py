@@ -1,3 +1,4 @@
+import numpy as np
 from torchmetrics import AUROC, Accuracy, Precision, Recall, F1Score, MatthewsCorrCoef
 import networkx as nx
 import seaborn as sns
