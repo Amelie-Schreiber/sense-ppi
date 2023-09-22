@@ -52,7 +52,8 @@ def add_args(parser):
                                 "(.tsv format will be added automatically)")
     test_args.add_argument("--crop_data_to_model_lims", action="store_true",
                            help="If set, the data will be cropped to the limits of the model: "
-                                "evaluations will be done only for proteins >50aa and <800aa.")
+                                "evaluations will be done only for proteins >50aa and <800aa. WARNING: "
+                                "this will modify the original input files.")
 
     parser = SensePPIModel.add_model_specific_args(parser)
     remove_argument(parser, "--lr")

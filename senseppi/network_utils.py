@@ -111,14 +111,13 @@ def get_interactions_from_string(gene_names, species=9606, add_nodes=10, require
     if len(string_interactions) == 0:
         raise Exception('No interactions found. Please revise your input parameters.')
 
-    # Remove duplicated interactions
+    # Removing duplicated interactions
     string_interactions.drop_duplicates(inplace=True)
-    # Make the interactions symmetric: add the interactions where the first and second columns are swapped
+    # Making the interactions symmetric: adding the interactions where the first and second columns are swapped
     string_interactions = pd.concat([string_interactions, string_interactions.rename(
         columns={'stringId_A': 'stringId_B', 'stringId_B': 'stringId_A', 'preferredName_A': 'preferredName_B',
                  'preferredName_B': 'preferredName_A'})])
 
-    # Getting the sequences for hparams.genes in case there are proteins with no connections and add ghost self_connections to keep gene names in the file
     string_names_input_genes = get_names_from_string(gene_names, species)
     string_names_input_genes['stringId_A'] = string_names_input_genes['stringId']
     string_names_input_genes['preferredName_A'] = string_names_input_genes['preferredName']
@@ -128,10 +127,11 @@ def get_interactions_from_string(gene_names, species=9606, add_nodes=10, require
         ['stringId_A', 'preferredName_A', 'stringId_B', 'preferredName_B']]])
     string_interactions.fillna(0, inplace=True)
 
-    # For all the proteins in the first ans second columns extract their sequences from 9606.protein.sequences.v11.5.fasta and write them to sequences.fasta
-    ids = list(string_interactions['stringId_A'].values) + list(string_interactions['stringId_B'].values) + \
+    ids = list(string_interactions['stringId_A'].values) + \
+          list(string_interactions['stringId_B'].values) + \
           string_names_input_genes['stringId'].to_list()
     ids = set(ids)
+
     with open('sequences.fasta', 'w') as f:
         for record in SeqIO.parse('{}.protein.sequences.v{}.fa'.format(species, version), "fasta"):
             if record.id in ids:

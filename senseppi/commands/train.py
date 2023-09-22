@@ -45,7 +45,7 @@ def main(params):
 def add_args(parser):
     parser = add_general_args(parser)
 
-    train_args = parser.add_argument_group(title="Training args")
+    train_args = parser.add_argument_group(title="Training args", description="Arguments for training the model.")
     parser._action_groups[0].add_argument("pairs_file", type=str,
                                           help="A path to a .tsv file containing training pairs. "
                                                "Required format: 3 tab separated columns: first protein, "

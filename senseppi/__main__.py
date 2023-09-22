@@ -3,21 +3,21 @@ import logging
 import torch
 from .commands import *
 from senseppi import __version__
-from senseppi.utils import block_mps
+from senseppi.utils import ArgumentParserWithDefaults, block_mps, determine_device
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
 
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithDefaults(
         description="SENSE_PPI: Sequence-based EvolutIoNary ScalE Protein-Protein Interaction prediction",
         usage="senseppi <command> [<args>]",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument(
         "-v", "--version", action="version", version="SENSE-PPI v{} ".format(__version__))
 
-    subparsers = parser.add_subparsers(title="The list of SEINE-PPI commands:", required=True, dest="cmd")
+    subparsers = parser.add_subparsers(title="The list of SEINE-PPI commands", required=True, dest="cmd")
 
     modules = {'train': train,
                'predict': predict,
@@ -34,6 +34,9 @@ def main():
     params = parser.parse_args()
 
     if hasattr(params, 'device'):
+        if params.device == 'auto':
+            params.device = determine_device()
+
         if params.device == 'gpu':
             torch.set_float32_matmul_precision('high')
 

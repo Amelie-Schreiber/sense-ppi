@@ -3,6 +3,18 @@ import os
 from senseppi import __version__
 import torch
 import logging
+import argparse
+
+
+class ArgumentParserWithDefaults(argparse.ArgumentParser):
+    def add_argument(self, *args, help=None, default=None, **kwargs):
+        if help is not None:
+            kwargs['help'] = help
+        if default is not None and args[0] != '-h':
+            kwargs['default'] = default
+            if help is not None:
+                kwargs['help'] += ' Default: {}'.format(default)
+        super().add_argument(*args, **kwargs)
 
 
 def add_general_args(parser):
@@ -13,8 +25,8 @@ def add_general_args(parser):
     parser.add_argument("--max_len", type=int, default=800,
                         help="Maximum length of the protein sequence. The sequences with larger length will not be "
                              "considered and will be deleted from the fasta file.")
-    parser.add_argument("--device", type=str, default=determine_device(), choices=['cpu', 'gpu', 'mps'],
-                        help="Device to used for computations. Options include: cpu, gpu, mps (for MacOS)."
+    parser.add_argument("--device", type=str, default='auto', choices=['cpu', 'gpu', 'mps', 'auto'],
+                        help="Device to use for computations. Options include: cpu, gpu, mps (for MacOS), and auto."
                              "If not selected the device is set by torch automatically. WARNING: mps is temporarily "
                              "disabled, if it is chosen, cpu will be used instead.")
 
@@ -23,12 +35,11 @@ def add_general_args(parser):
 
 def determine_device():
     if torch.cuda.is_available():
-        device = 'gpu'
+        return 'gpu'
     elif torch.backends.mps.is_available() and torch.backends.mps.is_built():
-        device = 'mps'
+        return 'mps'
     else:
-        device = 'cpu'
-    return device
+        return 'cpu'
 
 
 def block_mps(params):
