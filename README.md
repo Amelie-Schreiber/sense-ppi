@@ -35,7 +35,7 @@ Predictions are compared with the STRING database. Optionally, the graphs can be
 
 The original SENSE-PPI repository contains two models (checkpoints with weights) pretrained on human PPIs: `senseppi.ckpt` and `dscript.ckpt` pretrained on SENSE-PPI and DSCRIPT human datasets respectively.
 
-- `senseppi.ckpt` (preferred) : Download from [here](http://gitlab.lcqb.upmc.fr/Konstvv/SENSE-PPI/raw/master/pretrained_models/senseppi.ckpt)
+- `senseppi.ckpt`: Download from [here](http://gitlab.lcqb.upmc.fr/Konstvv/SENSE-PPI/raw/master/pretrained_models/senseppi.ckpt)
 - `dscript.ckpt` : Download from [here](http://gitlab.lcqb.upmc.fr/Konstvv/SENSE-PPI/raw/master/pretrained_models/dscript.ckpt)
 
 The package already comes with preinstalled model `senseppi.ckpt` that is used by default if model path is not specified.
