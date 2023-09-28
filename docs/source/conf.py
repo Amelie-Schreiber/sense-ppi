@@ -6,8 +6,8 @@ project = 'SENSE-PPI'
 copyright = '2023, Konstantin Volzhenin, Lucie Bittner, Alessandra Carbone'
 author = 'Konstantin Volzhenin, Lucie Bittner, Alessandra Carbone'
 
-release = '0.1'
-version = '0.1.0'
+release = '0.2'
+version = '0.2.0'
 
 # -- General configuration
 
