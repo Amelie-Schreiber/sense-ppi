@@ -1,0 +1,8 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "senseppi"
+authors = [{name = "Konstantin Volzhenin", email = "konstantin_v_v@outlook.com"}]
+dynamic = ["version", "description"]
