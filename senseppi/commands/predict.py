@@ -149,9 +149,11 @@ def main(params):
                          'protein name 1, protein name 2 and label(optional)')
     data['preds'] = preds
 
+    data = data.sort_values(by=['preds'], ascending=False)
     data.to_csv(params.output + '.tsv', sep='\t', index=False, header=True)
 
     data_positive = data[data['preds'] >= params.pred_threshold]
+    data_positive = data_positive.sort_values(by=['preds'], ascending=False)
     data_positive.to_csv(params.output + '_positive_interactions.tsv', sep='\t', index=False, header=True)
 
     if os.path.isfile(tmp_pairs):
