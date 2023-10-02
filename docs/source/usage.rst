@@ -6,14 +6,14 @@ Usage
 Quick start
 ------------
 
-SENSE-PPI can be used to predict pairwise interactions between proteins. The input is a FASTA file with protein sequences.
-The output is a .tsv file with predictions as well as a secondary .tsv file with only positive interactions. By default, the predictions are made in "all vs all" manner: all possible protein pairs are considered.
+SENSE-PPI can be used to predict pairwise physical interactions between proteins. The simplest input is single a FASTA file with protein sequences.
+The output is a .tsv file with all predictions as well as a secondary .tsv file that contains only positive interactions. By default, the predictions are made in "all vs all" manner: all possible protein pairs from the input file are considered.
 
 In order to copmute the predictions for all possible pairs from FASTA file, the following command can be used:
 
 .. code-block:: bash
 
-    senseppi predict proteins.fasta
+    $ senseppi predict proteins.fasta
 
 By default, if no model is provided, the pre-trained model on human PPIs is used.
 
