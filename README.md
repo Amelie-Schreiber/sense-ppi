@@ -44,3 +44,5 @@ The package already comes with preinstalled model `senseppi.ckpt` that is used b
 **N.B.**: Both pretrained models were made to work with proteins in range 50-800 amino acids.
 
 In order to cite the original SENSE-PPI paper, please use the following link: https://doi.org/10.1101/2023.09.19.558413  
+
+The documentation for the package can be found [here](https://sense-ppi.readthedocs.io/en/latest/).

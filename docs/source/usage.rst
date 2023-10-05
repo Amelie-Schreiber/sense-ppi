@@ -22,7 +22,7 @@ List of commands
 
 There are 5 commands available in the package:
 
-- `train`: trains SENSE-PPI on a given dataset
+- `train`: trains SENSE-PPI on a given dataset.
 - `test`: computes test metrics (AUROC, AUPRC, F1, MCC, Presicion, Recall, Accuracy) on a given dataset
 - `predict`: predicts interactions for a given dataset
 - `predict_string`: predicts interactions for a given dataset using STRING database: the interactions are taken from the STRING database (based on seed proteins). Predictions are compared with the STRING database. Optionally, the graphs can be constructed.
@@ -126,6 +126,12 @@ Test
 
 Train
 ------------
+
+A dataset for training must be provided as two separate files:
+
+- **pairs_file**: a .tsv file with pairs of proteins and their labels (1 for interacting, 0 for non-interacting)
+- **fasta_file**: a FASTA file with protein sequences. The FASTA file is used to extract ESM2 embeddings for each protein. The embeddings are saved in a separate folder so they can be reused in multiple runs. In order to reuse the embeddings, make sure that `--output_dir_esm` is set to the correct folder.
+
 
 .. code-block:: bash
 
