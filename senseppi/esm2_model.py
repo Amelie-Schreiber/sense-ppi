@@ -3,7 +3,7 @@
 # Modified by Konstantin Volzhenin, Sorbonne University, 2023
 
 import argparse
-import pathlib
+from pathlib import Path
 import torch
 import os
 import logging
@@ -29,7 +29,7 @@ def add_esm_args(parent_parser):
     )
     parser.add_argument(
         "--output_dir_esm",
-        type=pathlib.Path, default=pathlib.Path('esm2_embs_3B'),
+        type=Path, default=Path('esm2_embs_3B'),
         help="output directory for extracted representations",
     )
 
@@ -126,7 +126,7 @@ def compute_embeddings(params):
                 seq_dict.pop(seq_id)
         if len(seq_dict) > 0:
             params_esm = copy(params)
-            params_esm.fasta_file = 'tmp_for_esm.fasta'
+            params_esm.fasta_file = Path(str(params.fasta_file).replace('fasta', 'tmp.fasta'))
             with open(params_esm.fasta_file, 'w') as f:
                 for seq_id in seq_dict.keys():
                     f.write('>' + seq_id + '\n')

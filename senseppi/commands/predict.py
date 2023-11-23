@@ -26,7 +26,8 @@ def predict(params):
 
     pretrained_model.load_state_dict(checkpoint['state_dict'])
 
-    trainer = pl.Trainer(accelerator=params.device, logger=False)
+    trainer = pl.Trainer(accelerator=params.device, logger=False,
+                         num_nodes=params.num_nodes if hasattr(params, 'num_nodes') else 1)
 
     test_loader = DataLoader(dataset=test_data,
                              batch_size=params.batch_size,
@@ -85,6 +86,8 @@ def add_args(parser):
     predict_args.add_argument("-p", "--pred_threshold", type=float, default=0.5,
                               help="Prediction threshold to determine interacting pairs that "
                                    "will be written to a separate file. Range: (0, 1).")
+    predict_args.add_argument("--num_nodes", type=int, default=1,
+                            help="Number of nodes to use for launching on a cluster.")
 
     parser = SensePPIModel.add_model_specific_args(parser)
     remove_argument(parser, "--lr")

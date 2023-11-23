@@ -24,7 +24,8 @@ def test(params):
 
     pretrained_model.load_state_dict(checkpoint['state_dict'])
 
-    trainer = pl.Trainer(accelerator=params.device, logger=False)
+    trainer = pl.Trainer(accelerator=params.device, logger=False, 
+                         num_nodes=params.num_nodes)
 
     eval_loader = DataLoader(dataset=eval_data,
                              batch_size=params.batch_size,
@@ -55,6 +56,8 @@ def add_args(parser):
                            help="If set, the data will be cropped to the limits of the model: "
                                 "evaluations will be done only for proteins >50aa and <800aa. WARNING: "
                                 "this will modify the original input files.")
+    test_args.add_argument("--num_nodes", type=int, default=1,
+                           help="Number of nodes to use for launching on a cluster.")
 
     parser = SensePPIModel.add_model_specific_args(parser)
     remove_argument(parser, "--lr")
