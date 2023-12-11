@@ -16,6 +16,12 @@ SENSE-PPI requires Python 3.9 or higher. To install the package, run:
 ```bash
 pip install senseppi
 ```
+OR
+```
+$ git clone http://gitlab.lcqb.upmc.fr/Konstvv/SENSE-PPI.git
+$ cd SENSE-PPI
+$ python setup.py build; python setup.py install
+```
 
 **N.B.**: if you intend to use the `create_dataset` command to generate new datasets from STRING,
 do not forget to additionally install the MMseqs2 software (instructions can be found at: https://github.com/soedinglab/MMseqs2).
